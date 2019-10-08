@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AppareilService } from './services/appareil.service';
-import { Observable, interval } from "rxjs";
+import { Observable, interval, Subscription } from "rxjs";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+
   
   secondes:number;
   title = 'angularServices';
 
   isAuth = true;
   mAppareils: any[];
+  counterSubscription: Subscription;
 
   constructor(private appareilService: AppareilService){}
 
@@ -21,19 +23,12 @@ export class AppComponent implements OnInit {
     this.mAppareils = this.appareilService.appareils;
     const counter = interval(1000);
 
-    counter.subscribe(
-      (value:number) =>{
-        this.secondes= value;
-      },
-      (error:any) => {
-        console.log("une erreur s'est produite : "+ console.error());
-        
-      },
-
-      () => {
-        console.log("Observable completed");
+    this.counterSubscription = counter.subscribe(
+      (value:number) => {
+        this.secondes = value;
       }
     );
+      
   }
 
   onAllumer(){
@@ -44,5 +39,9 @@ export class AppComponent implements OnInit {
   onEteindre(){
     console.log("tout éteinder");
     this.appareilService.switchOffAll();
+  }
+
+  ngOnDestroy(): void {
+    this.counterSubscription.unsubscribe();
   }
 }
