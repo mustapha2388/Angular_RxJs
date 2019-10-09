@@ -16,13 +16,20 @@ export class AppComponent implements OnInit, OnDestroy {
   isAuth = true;
   mAppareils: any[];
   counterSubscription: Subscription;
+  appareilSubcription: Subscription;
 
   constructor(private appareilService: AppareilService){}
 
   ngOnInit(): void {
-    this.mAppareils = this.appareilService.appareils;
-    const counter = interval(1000);
+    this.appareilSubcription= this.appareilService.appareilSubject.subscribe(
+      (appareils:any[]) => {
+        this.mAppareils =appareils;
+      }
+    );
+    this.appareilService.emitAppareilSubject();
 
+
+    const counter = interval(3000);
     this.counterSubscription = counter.subscribe(
       (value:number) => {
         this.secondes = value;
